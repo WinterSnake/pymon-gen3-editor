@@ -10,7 +10,7 @@ from enum import IntEnum, auto
 from pathlib import Path
 
 ## Constants
-FILE: Path = Path("./saves/lg01.sav")
+FILE: Path = Path("./saves/lg02.sav")
 SAVE_BLOCK_COUNT: int = 2
 SECTION_BLOCK_COUNT: int = 14
 SECTION_TITLES: tuple[str, ...] = (
@@ -32,10 +32,7 @@ TEXT_FRAME_SHIFT = 0x03
 BITFLAGS_OFFSET = 0x15
 BITFLAGS_AUDIO_MASK = 0x1
 BITFLAGS_STYLE_MASK = 0x2
-BITFLAGS_SCENE_MASK = 0x3
-
-
-## Classes
+BITFLAGS_SCENE_MASK = 0x4
 
 
 ## Functions
