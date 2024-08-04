@@ -54,13 +54,13 @@ class Section:
         data: bytes = fp.read(DATA_SIZE)
         footer: bytes = fp.read(FOOTER_SIZE)
         signature_bytes: bytes = footer[SIGNATURE_OFFSET : SIGNATURE_OFFSET + SIGNATURE_SIZE]
-        signature: int = int.from_bytes(signature_bytes, 'little', signed=False)
+        signature = int.from_bytes(signature_bytes, 'little', signed=False)
         if signature != SECTION_SIGNATURE:
             raise ValueError(f"Unexpected signature {hex(signature)} - does not match expected value.")
         id_bytes: bytes = footer[ID_OFFSET : ID_OFFSET + ID_SIZE]
-        _id: int = int.from_bytes(id_bytes, 'little', signed=False)
+        _id = int.from_bytes(id_bytes, 'little', signed=False)
         index_bytes: bytes = footer[INDEX_OFFSET : INDEX_OFFSET + INDEX_SIZE]
-        index: int = int.from_bytes(index_bytes, 'little', signed=False)
+        index = int.from_bytes(index_bytes, 'little', signed=False)
         return cls(_id, index, data)
 
     # -Properties

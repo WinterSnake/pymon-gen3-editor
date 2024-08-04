@@ -9,6 +9,7 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from pathlib import Path
 
+from pokemon import POKEMON_SIZE, PARTY_POKEMON_SIZE, Pokemon, PartyPokemon
 from section import Section
 from text import decode_string, encode_string
 
@@ -40,12 +41,26 @@ def parse_file(file: Path) -> None:
     for block in range(SAVE_BLOCK_COUNT):
         for section in range(SECTION_BLOCK_COUNT):
             segment: Section = Section.from_file_pointer(fp)
-            print(segment.name)
             match segment.id:
                 # -Trainer Info
                 case 0:
-                    _parse_trainer_info(segment.data)
+                    pass
+                    #_parse_trainer_info(segment.data)
+                case 1:
+                    print(segment.name)
+                    _parse_team_info(segment.data)
     fp.close()
+
+
+def _parse_team_info(data: bytes) -> None:
+    """"""
+    party_size: int = data[0x34]
+    party_pokemon: list[PartyPokemon | None] = []
+    for i in range(party_size):
+        position = 0x38 + PARTY_POKEMON_SIZE * i
+        length: int = position + PARTY_POKEMON_SIZE
+        pokemon_bytes: bytes = data[position : length]
+        pokemon = PartyPokemon.from_bytes(pokemon_bytes)
 
 
 def _parse_trainer_info(data: bytes) -> None:
