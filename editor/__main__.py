@@ -9,6 +9,8 @@ from __future__ import annotations
 from enum import IntEnum, auto
 from pathlib import Path
 
+from text import decode_string, encode_string
+
 ## Constants
 FILE: Path = Path("./saves/lg02.sav")
 SAVE_BLOCK_COUNT: int = 2
@@ -23,6 +25,7 @@ SECTION_TITLES: tuple[str, ...] = (
 )
 SECTION_SIGNATURE: int = 0x08012025
 # -SECTION: TRAINER INFO
+NAME_SIZE = 0x08
 # -SUBSECTION: Text
 TEXT_OFFSET = 0x14
 TEXT_SPEED_MASK = 0x07
@@ -54,6 +57,9 @@ def parse_file(file: Path) -> None:
             if _id >= len(SECTION_TITLES) - 1:
                 title = title.format(_id - len(SECTION_TITLES) + 1)
             print(f"[Block:{block} ; Section:{section:2} ; Id:{_id:2}]{title}")
+            # -[NAME]
+            name = decode_string(data[0:NAME_SIZE])
+            print(name)
             # -Options[TEXT]
             text_options = data[TEXT_OFFSET]
             speed = ("Slow", "Medium", "Fast")[text_options & TEXT_SPEED_MASK]
