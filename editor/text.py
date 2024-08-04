@@ -40,12 +40,13 @@ def encode_string(_str: str, length: int = 0) -> bytes:
         if i >= len(_str):
             value.append(0xFF)
             continue
-        char = _str[i]
+        char: str = _str[i]
         # -Append character set
         for key, val in ENGLISH_CHARACTER_SET.items():
             if val == char:
                 value.append(key)
                 break
+        # -Throw error on invalid/unhandled character
         if len(value) != i + 1:
             raise IndexError(f"Unhandled character '{char}' in table.")
     return bytes(value)

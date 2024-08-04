@@ -25,7 +25,9 @@ SECTION_TITLES: tuple[str, ...] = (
 )
 SECTION_SIGNATURE: int = 0x08012025
 # -SECTION: TRAINER INFO
-NAME_SIZE = 0x08
+NAME_SIZE = 0x07
+NAME_LENGTH = NAME_SIZE + 1
+GENDER_OFFSET = 0x08
 # -SUBSECTION: Text
 TEXT_OFFSET = 0x14
 TEXT_SPEED_MASK = 0x07
@@ -48,30 +50,36 @@ def parse_file(file: Path) -> None:
             data = fp.read(0x1000)
             _id: int = int.from_bytes(data[-12:-10], byteorder='little', signed=False)
             signature: int = int.from_bytes(data[-8:-4], byteorder='little', signed=False)
-            assert signature == SECTION_SIGNATURE, f"Signature '{hex(sig)}' incorrect"
-            if _id != 0:
-                continue
-            # -Trainer Info
-            print(hex(fp.tell() - 0x1000))
+            assert signature == SECTION_SIGNATURE, f"Signature '{hex(signature)}' incorrect"
             title: str = SECTION_TITLES[min(_id, len(SECTION_TITLES) - 1)]
             if _id >= len(SECTION_TITLES) - 1:
                 title = title.format(_id - len(SECTION_TITLES) + 1)
-            print(f"[Block:{block} ; Section:{section:2} ; Id:{_id:2}]{title}")
-            # -[NAME]
-            name = decode_string(data[0:NAME_SIZE])
-            print(name)
-            # -Options[TEXT]
-            text_options = data[TEXT_OFFSET]
-            speed = ("Slow", "Medium", "Fast")[text_options & TEXT_SPEED_MASK]
-            frame = (text_options & TEXT_FRAME_MASK) >> TEXT_FRAME_SHIFT
-            print(f"Frame: {frame + 1} | Speed: {speed}")
-            # -Options[BITFLAGS]
-            op = data[BITFLAGS_OFFSET]
-            audio = "Stereo" if (op & BITFLAGS_AUDIO_MASK) >> 0 == 1 else "Mono"
-            style = "Set" if (op & BITFLAGS_STYLE_MASK) >> 1 == 1 else "Switch"
-            scene = (op & BITFLAGS_SCENE_MASK) >> 2 == 0
-            print(f"Audio: {audio} ; Battle: {style} ; Visuals: {scene}")
+            print(f"[Position: {hex(fp.tell() - 0x1000)} ; Block:{block} ; Section:{section:2} ; Id:{_id:2}]{title}")
+            match _id:
+                # -Trainer Info
+                case 0:
+                    _parse_trainer_info(data)
     fp.close()
+
+
+def _parse_trainer_info(data: bytes) -> None:
+    """"""
+    # -[NAME|GENDER]
+    name = decode_string(data[0:NAME_LENGTH])
+    gender = data[GENDER_OFFSET] == 0
+    print(f"Name: {name} | Gender: {'Male' if gender else 'Female'}")
+    # -Gender
+    # -Options[TEXT]
+    text_options = data[TEXT_OFFSET]
+    speed = ("Slow", "Medium", "Fast")[text_options & TEXT_SPEED_MASK]
+    frame = (text_options & TEXT_FRAME_MASK) >> TEXT_FRAME_SHIFT
+    print(f"Frame: {frame + 1} | Speed: {speed}")
+    # -Options[BITFLAGS]
+    op = data[BITFLAGS_OFFSET]
+    audio = "Stereo" if (op & BITFLAGS_AUDIO_MASK) >> 0 == 1 else "Mono"
+    style = "Set" if (op & BITFLAGS_STYLE_MASK) >> 1 == 1 else "Switch"
+    scene = (op & BITFLAGS_SCENE_MASK) >> 2 == 0
+    print(f"Audio: {audio} ; Battle: {style} ; Visuals: {scene}")
 
 
 ## Body
